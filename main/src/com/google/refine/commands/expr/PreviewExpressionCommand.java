@@ -146,15 +146,8 @@ public class PreviewExpressionCommand extends Command {
                         writer.object();
                         writer.key("message"); writer.value(((EvalError) result).message);
                         writer.endObject();
-                    } else if (ExpressionUtils.isArrayOrList(result)) {
-                        writer.object();
-                        writer.key("message");
-                        StringBuffer sb = new StringBuffer();
-                        writeValue(sb, result, false);
-                        writer.value(sb.toString());
-                        writer.endObject();
                     } else {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         
                         writeValue(sb, result, false);
                         
@@ -178,7 +171,7 @@ public class PreviewExpressionCommand extends Command {
         }
     }
     
-    static protected void writeValue(StringBuffer sb, Object v, boolean quote) throws JSONException {
+    static protected void writeValue(StringBuilder sb, Object v, boolean quote) throws JSONException {
         if (ExpressionUtils.isError(v)) {
             sb.append("[error: " + ((EvalError) v).message + "]");
         } else {
@@ -193,26 +186,8 @@ public class PreviewExpressionCommand extends Command {
                    sb.append(((JSONObject) v).toString());
                 } else if (v instanceof JSONArray) {
                     sb.append(((JSONArray) v).toString());
-                } else if (ExpressionUtils.isArray(v)) {
-                    Object[] a = (Object[]) v;
-                    sb.append("add join() to store array: [ ");
-                    for (int i = 0; i < a.length; i++) {
-                        if (i > 0) {
-                            sb.append(", ");
-                        }
-                        writeValue(sb, a[i], true);
-                    }
-                    sb.append(" ]");
-                } else if (ExpressionUtils.isArrayOrList(v)) {
-                    List<Object> list = ExpressionUtils.toObjectList(v);
-                    sb.append("add join() to store array: [ ");
-                    for (int i = 0; i < list.size(); i++) {
-                        if (i > 0) {
-                            sb.append(", ");
-                        }
-                        writeValue(sb, list.get(i), true);
-                    }
-                    sb.append(" ]");
+                } else if (v.getClass().isArray() || (v instanceof List)) {
+                    sb.append(Arrays.deepToString((Object[]) v));
                 } else if (v instanceof HasFields) {
                     sb.append("[object " + v.getClass().getSimpleName() + "]");
                 } else if (v instanceof Calendar) {
