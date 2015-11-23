@@ -142,7 +142,9 @@ public class ExpressionUtils {
             v instanceof Boolean ||
             v instanceof Date ||
             v instanceof Calendar ||
-            v instanceof EvalError;
+            v instanceof EvalError ||
+            v instanceof Arrays ||
+            v instanceof List;;
     }
 
     static public Serializable wrapStorable(Object v) {
@@ -150,6 +152,10 @@ public class ExpressionUtils {
             return ((JSONArray) v).toString();
         } else if (v instanceof JSONObject) {
             return ((JSONObject) v).toString();
+        } else if (v.getClass().isArray()) {
+            return Arrays.deepToString((Object[]) v);
+        } else if (v instanceof List) {
+            return ((List<?>) v).toString();
         } else {
             return isStorable(v) ?
                 (Serializable) v :
